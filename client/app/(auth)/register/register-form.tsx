@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -23,34 +22,44 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
+
+import Link from "next/link";
+import envConfig from "@/config";
 
 const formSchema = z.object({
-  title: z
+  name: z
     .string()
-    .min(5, "Bug title must be at least 5 characters.")
-    .max(32, "Bug title must be at most 32 characters."),
-  description: z
-    .string()
-    .min(20, "Description must be at least 20 characters.")
-    .max(100, "Description must be at most 100 characters."),
+    .trim()
+    .min(2, "Tên phải có ít nhất 2 ký tự")
+    .max(256, "Tên chỉ được có tối đa 256 ký tự"),
+  email: z.string().email(),
+  password: z.string().min(6).max(100),
+  confirmPassword: z.string().min(6).max(100),
 });
 
 export function RegisterForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
+    const result = await fetch(
+      `${envConfig.NEXT_PUBLIC_API_URL}/auth/register`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-type": "application/json",
+        },
+      },
+    );
+    console.log("Result: ", result);
     toast("You submitted the following values:", {
       description: (
         <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
@@ -68,29 +77,26 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full min-w-sm sm:max-w-md">
       <CardHeader>
-        <CardTitle>Bug Report</CardTitle>
-        <CardDescription>
-          Help us improve by reporting bugs you encounter.
-        </CardDescription>
+        <CardTitle className="text-2xl font-semibold">Đăng ký</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="form-rhf-demo" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
             <Controller
-              name="title"
+              name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-title">
-                    Bug Title
+                  <FieldLabel htmlFor="input-required">
+                    Tên đăng nhập
                   </FieldLabel>
                   <Input
                     {...field}
-                    id="form-rhf-demo-title"
+                    id="form-rhf-demo-name"
                     aria-invalid={fieldState.invalid}
-                    placeholder="Login button not working on mobile"
+                    placeholder="Tên đăng nhập hệ thống"
                     autoComplete="off"
                   />
                   {fieldState.invalid && (
@@ -100,32 +106,58 @@ export function RegisterForm() {
               )}
             />
             <Controller
-              name="description"
+              name="email"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-description">
-                    Description
+                  <FieldLabel htmlFor="input-required">Email</FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-demo-email"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Email"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="password"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="input-required">Mật khẩu</FieldLabel>
+                  <Input
+                    {...field}
+                    id="form-rhf-demo-password"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Nhập mật khẩu"
+                    autoComplete="off"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+            <Controller
+              name="confirmPassword"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="input-required">
+                    Xác nhận mật khẩu
                   </FieldLabel>
-                  <InputGroup>
-                    <InputGroupTextarea
-                      {...field}
-                      id="form-rhf-demo-description"
-                      placeholder="I'm having an issue with the login button on mobile."
-                      rows={6}
-                      className="min-h-24 resize-none"
-                      aria-invalid={fieldState.invalid}
-                    />
-                    <InputGroupAddon align="block-end">
-                      <InputGroupText className="tabular-nums">
-                        {field.value.length}/100 characters
-                      </InputGroupText>
-                    </InputGroupAddon>
-                  </InputGroup>
-                  <FieldDescription>
-                    Include steps to reproduce, expected behavior, and what
-                    actually happened.
-                  </FieldDescription>
+                  <Input
+                    {...field}
+                    id="form-rhf-demo-confirmPassword"
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Nhập xác nhận mật khẩu"
+                    autoComplete="off"
+                  />
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -136,13 +168,16 @@ export function RegisterForm() {
         </form>
       </CardContent>
       <CardFooter>
-        <Field orientation="horizontal">
-          <Button type="button" variant="outline" onClick={() => form.reset()}>
-            Reset
-          </Button>
+        <Field orientation="vertical">
           <Button type="submit" form="form-rhf-demo">
-            Submit
+            Đăng ký
           </Button>
+          <FieldDescription>
+            Đã có tài khoản?{" "}
+            <Link href={"/login"} className="font-bold cursor-pointer ">
+              Đăng nhập
+            </Link>
+          </FieldDescription>
         </Field>
       </CardFooter>
     </Card>
