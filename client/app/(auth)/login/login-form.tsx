@@ -41,27 +41,33 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    const result = await fetch(`${envConfig.NEXT_PUBLIC_API_URL}/auth/login`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-type": "application/json",
-      },
-    });
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    });
+    try {
+      const result = await fetch(
+        `${envConfig.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-type": "application/json",
+          },
+        },
+      ).then(async (res) => {
+        const payload = await res.json();
+        const data = {
+          status: res?.status,
+          payload,
+        };
+        if (!res?.ok) {
+          throw data;
+        }
+        console.log(data);
+        return data;
+      });
+      toast.success(result.payload.message, { position: "bottom-right" });
+    } catch (err: any) {
+      console.error("Error: ", err);
+      toast.error(err.payload.errors[0].message, { position: "bottom-right" });
+    }
   }
 
   return (
