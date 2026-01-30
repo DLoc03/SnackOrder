@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
 import envConfig from "@/config";
+import { useAppContext } from "@/app/AppProvider";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -32,6 +33,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
+  const { setSessionToken } = useAppContext();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,6 +66,25 @@ export function LoginForm() {
         return data;
       });
       toast.success(result.payload.message, { position: "bottom-right" });
+      const resultFromNextServer = await fetch("/api/auth", {
+        method: "POST",
+        body: JSON.stringify(result),
+        headers: {
+          "Content-type": "application/json",
+        },
+      }).then(async (res) => {
+        const payload = await res.json();
+        const data = {
+          status: res?.status,
+          payload,
+        };
+        if (!res?.ok) {
+          throw data;
+        }
+        console.log(data);
+        return data;
+      });
+      setSessionToken(resultFromNextServer.payload.data.token);
     } catch (err: any) {
       console.error("Error: ", err);
       toast.error(err.payload.errors[0].message, { position: "bottom-right" });

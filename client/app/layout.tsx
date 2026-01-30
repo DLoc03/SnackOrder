@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import { Toaster } from "sonner";
+import AppProvider from "./AppProvider";
+import { cookies } from "next/headers";
 
 const geistInter = Inter({
   subsets: ["vietnamese"],
@@ -14,11 +16,13 @@ export const metadata: Metadata = {
   description: "Đặt món tiện lợi, nhanh chóng",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const sessionToken = (await cookieStore).get("sessionToken");
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -36,8 +40,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
+          <AppProvider initialSessionToken={sessionToken?.value || ""}>
+            <Header />
+            {children}
+          </AppProvider>
           <Toaster />
         </ThemeProvider>
       </body>
