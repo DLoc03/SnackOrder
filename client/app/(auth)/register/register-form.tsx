@@ -57,6 +57,9 @@ export function RegisterForm() {
       toast.success(result.payload.message, {
         position: "bottom-right",
       });
+      await authApiRequest.auth({
+        sessionToken: result.payload.data.token,
+      });
       router.push(PATHSNAME.ME);
     } catch (err: any) {
       toast.error(err.payload.errors[0].message, { position: "bottom-right" });

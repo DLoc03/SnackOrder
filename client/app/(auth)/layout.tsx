@@ -3,11 +3,11 @@ import React from "react";
 
 function AuthLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div>
+    <div className="w-full h-full pt-14 sm:pt-18">
       <header>
         <HeaderPublic />
       </header>
-      <main className="w-full py-6 flex justify-center items-center">
+      <main className="w-full h-full py-6 flex justify-center items-center">
         {children}
       </main>
     </div>

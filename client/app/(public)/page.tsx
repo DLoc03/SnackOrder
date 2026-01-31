@@ -4,7 +4,9 @@ export default function Home() {
   return (
     <main>
       <HeaderPublic />
-      <h1 className="text-red-500">Trang chủ</h1>
+      <div className="w-full px-4">
+        <h1>Trang chủ</h1>
+      </div>
     </main>
   );
 }
