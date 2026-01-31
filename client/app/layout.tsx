@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/header";
 import { Toaster } from "sonner";
-import AppProvider from "./AppProvider";
-import { cookies } from "next/headers";
 
 const geistInter = Inter({
   subsets: ["vietnamese"],
@@ -16,7 +13,7 @@ export const metadata: Metadata = {
   description: "Đặt món tiện lợi, nhanh chóng",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -38,7 +35,6 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
           {children}
           <Toaster />
         </ThemeProvider>

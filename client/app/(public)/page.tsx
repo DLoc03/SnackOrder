@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { ModeToggle } from "@/components/toggle-mode";
+import HeaderPublic from "@/components/features/layout/header-public";
 
 export default function Home() {
   return (
     <main>
+      <HeaderPublic />
       <h1 className="text-red-500">Trang chủ</h1>
     </main>
   );

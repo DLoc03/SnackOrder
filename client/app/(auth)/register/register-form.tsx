@@ -24,7 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
-import envConfig from "@/config";
+import authApiRequest from "@/apiRequest/auth";
+import { useRouter } from "next/navigation";
+import { PATHSNAME } from "@/constants/paths-name";
 
 const formSchema = z.object({
   name: z
@@ -38,6 +40,7 @@ const formSchema = z.object({
 });
 
 export function RegisterForm() {
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,30 +52,15 @@ export function RegisterForm() {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    const result = await fetch(
-      `${envConfig.NEXT_PUBLIC_API_URL}/auth/register`,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-type": "application/json",
-        },
-      },
-    );
-    toast("You submitted the following values:", {
-      description: (
-        <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-      position: "bottom-right",
-      classNames: {
-        content: "flex flex-col gap-2",
-      },
-      style: {
-        "--border-radius": "calc(var(--radius)  + 4px)",
-      } as React.CSSProperties,
-    });
+    try {
+      const result = await authApiRequest.register(data);
+      toast.success(result.payload.message, {
+        position: "bottom-right",
+      });
+      router.push(PATHSNAME.ME);
+    } catch (err: any) {
+      toast.error(err.payload.errors[0].message, { position: "bottom-right" });
+    }
   }
 
   return (

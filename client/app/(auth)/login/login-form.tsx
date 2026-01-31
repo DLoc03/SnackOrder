@@ -24,8 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import Link from "next/link";
-import envConfig from "@/config";
-import { useAppContext } from "@/app/AppProvider";
+import authApiRequest from "@/apiRequest/auth";
+import { useRouter } from "next/navigation";
+import { PATHSNAME } from "@/constants/paths-name";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -33,7 +34,7 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
-  const { setSessionToken } = useAppContext();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,45 +45,14 @@ export function LoginForm() {
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
-      const result = await fetch(
-        `${envConfig.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: {
-            "Content-type": "application/json",
-          },
-        },
-      ).then(async (res) => {
-        const payload = await res.json();
-        const data = {
-          status: res?.status,
-          payload,
-        };
-        if (!res?.ok) {
-          throw data;
-        }
-        return data;
+      const result = await authApiRequest.login(data);
+      toast.success(result.payload.message, {
+        position: "bottom-right",
       });
-      toast.success(result.payload.message, { position: "bottom-right" });
-      const resultFromNextServer = await fetch("/api/auth", {
-        method: "POST",
-        body: JSON.stringify(result),
-        headers: {
-          "Content-type": "application/json",
-        },
-      }).then(async (res) => {
-        const payload = await res.json();
-        const data = {
-          status: res?.status,
-          payload,
-        };
-        if (!res?.ok) {
-          throw data;
-        }
-        return data;
+      await authApiRequest.auth({
+        sessionToken: result.payload.data.token,
       });
-      setSessionToken(resultFromNextServer.payload.data.token);
+      router.push(PATHSNAME.ME);
     } catch (err: any) {
       console.error("Error: ", err);
       toast.error(err.payload.errors[0].message, { position: "bottom-right" });
