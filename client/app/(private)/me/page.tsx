@@ -21,7 +21,6 @@ async function Profile() {
     }
     return data;
   });
-  console.log("Account me: ", result);
 
   return (
     <div>

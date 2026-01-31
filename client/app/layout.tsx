@@ -21,8 +21,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = cookies();
-  const sessionToken = (await cookieStore).get("sessionToken");
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -40,10 +38,8 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppProvider initialSessionToken={sessionToken?.value || ""}>
-            <Header />
-            {children}
-          </AppProvider>
+          <Header />
+          {children}
           <Toaster />
         </ThemeProvider>
       </body>

@@ -62,7 +62,6 @@ export function LoginForm() {
         if (!res?.ok) {
           throw data;
         }
-        console.log(data);
         return data;
       });
       toast.success(result.payload.message, { position: "bottom-right" });
@@ -81,7 +80,6 @@ export function LoginForm() {
         if (!res?.ok) {
           throw data;
         }
-        console.log(data);
         return data;
       });
       setSessionToken(resultFromNextServer.payload.data.token);
