@@ -1,7 +1,7 @@
-import React from "react";
 import { ModeToggle } from "../../toggle-mode";
 import Link from "next/link";
 import { Button } from "../../ui/button";
+import { PATHSNAME } from "@/constants/paths-name";
 
 function HeaderPublic() {
   return (
@@ -15,12 +15,12 @@ function HeaderPublic() {
 
       <div className="flex gap-x-2 items-center">
         <ModeToggle />
-        <Link href={"/login"}>
+        <Link href={PATHSNAME.LOGIN}>
           <Button variant={"default"} size={"sm"}>
             Đăng nhập
           </Button>
         </Link>
-        <Link href={"/register"}>
+        <Link href={PATHSNAME.REGISTER}>
           <Button variant={"outline"} size={"sm"}>
             Đăng ký
           </Button>
