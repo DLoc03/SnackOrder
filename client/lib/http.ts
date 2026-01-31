@@ -64,6 +64,7 @@ const request = async <Response>(
     status: res.status,
     payload,
   };
+  console.log("Res: ", res);
   if (!res.ok) {
     throw new HttpError(data);
   }

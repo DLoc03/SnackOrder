@@ -20,9 +20,8 @@ function HeaderDropdown({ user }: DropdownProps) {
   const router = useRouter();
   const handleLogout = async () => {
     try {
-      logout();
+      await logout();
       toast.info("Đã đăng xuất khỏi tài khoản", { position: "bottom-right" });
-      router.push(PATHSNAME.LOGIN);
     } catch (err) {
       console.error(err);
       toast.error("Đã có lỗi xảy ra!", { position: "bottom-right" });

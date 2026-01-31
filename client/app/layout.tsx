@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-import Header from "@/components/features/layout/header";
 
 const geistInter = Inter({
   subsets: ["vietnamese"],
@@ -36,7 +35,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
           <main>{children}</main>
           <Toaster />
         </ThemeProvider>
