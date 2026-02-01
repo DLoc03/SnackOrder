@@ -1,0 +1,5 @@
+const ERRORS_STATUS = {
+  ENTITY_ERROR: 422,
+};
+
+export { ERRORS_STATUS };

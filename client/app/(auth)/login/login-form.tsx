@@ -27,6 +27,7 @@ import Link from "next/link";
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import { PATHSNAME } from "@/constants/paths-name";
+import { handleErrorApi } from "@/lib/utils";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -54,8 +55,7 @@ export function LoginForm() {
       });
       router.push(PATHSNAME.ME);
     } catch (err: any) {
-      console.error("Error: ", err);
-      toast.error(err.payload.errors[0].message, { position: "bottom-right" });
+      handleErrorApi({ error: err, setError: form.setError });
     }
   }
 
