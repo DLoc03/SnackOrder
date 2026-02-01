@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import UserPhoto from "../user/user-photo";
-import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { useOnClickOutside } from "@/hooks/useOnClickOutside";
 import HeaderDropdown from "../item/header-dropdown";

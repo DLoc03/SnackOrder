@@ -1,7 +1,7 @@
 import envConfig from "@/config";
 import { ERRORS_STATUS } from "@/constants/error-status";
 import { LoginResType } from "@/schemaValidations copy/auth.schema";
-import { get } from "http";
+import { normalizePath } from "./utils";
 
 type CustomOptions = RequestInit & {
   baseUrl?: string | undefined;
@@ -106,11 +106,18 @@ const request = async <Response>(
       throw new HttpError(data);
     }
   }
-  if (["/auth/login", "/auth/register"].includes(url)) {
-    clientSessionToken.value = (payload as LoginResType).data.token;
-  } else if ("/auth/logout".includes(url)) {
-    clientSessionToken.value = "";
+  if (typeof window !== undefined) {
+    if (
+      ["/auth/login", "/auth/register"].some(
+        (item) => item === normalizePath(url),
+      )
+    ) {
+      clientSessionToken.value = (payload as LoginResType).data.token;
+    } else if ("/auth/logout" === normalizePath(url)) {
+      clientSessionToken.value = "";
+    }
   }
+
   return data;
 };
 

@@ -7,6 +7,7 @@ import authApiRequest from "@/apiRequest/auth";
 import { toast } from "sonner";
 import { logout } from "@/actions/logout";
 import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
 
 type User = {
   name: string;
@@ -20,11 +21,11 @@ function HeaderDropdown({ user }: DropdownProps) {
   const router = useRouter();
   const handleLogout = async () => {
     try {
-      await logout();
+      await authApiRequest.logoutFromNextClient();
       toast.info("Đã đăng xuất khỏi tài khoản", { position: "bottom-right" });
-    } catch (err) {
-      console.error(err);
-      toast.error("Đã có lỗi xảy ra!", { position: "bottom-right" });
+      router.push(PATHSNAME.LOGIN);
+    } catch (err: any) {
+      handleErrorApi({ error: err });
     }
   };
   return (
