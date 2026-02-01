@@ -1,18 +1,48 @@
 import envConfig from "@/config";
+import { ERRORS_STATUS } from "@/constants/error-status";
 import { LoginResType } from "@/schemaValidations copy/auth.schema";
-import { get } from "http";
+import { normalizePath } from "./utils";
 
 type CustomOptions = RequestInit & {
   baseUrl?: string | undefined;
 };
 
-class HttpError extends Error {
+type EntityErrorPayloar = {
+  message: string;
+  errors: {
+    field: string;
+    message: string;
+  }[];
+};
+
+export class HttpError extends Error {
   status: number;
-  payload: any;
+  payload: {
+    message: string;
+    [key: string]: any;
+  };
   constructor({ status, payload }: { status: number; payload: any }) {
     super("Http Error");
     this.status = status;
     this.payload = payload;
+  }
+}
+
+export class EntityError extends HttpError {
+  status: 422;
+  payload: EntityErrorPayloar;
+  constructor({
+    status,
+    payload,
+  }: {
+    status: 422;
+    payload: EntityErrorPayloar;
+  }) {
+    super({ status, payload });
+    if (status !== ERRORS_STATUS.ENTITY_ERROR) {
+      throw new Error("EntityError must have status 422");
+    }
+    ((this.status = status), (this.payload = payload));
   }
 }
 
@@ -65,13 +95,29 @@ const request = async <Response>(
     payload,
   };
   if (!res.ok) {
-    throw new HttpError(data);
+    if (res.status === ERRORS_STATUS.ENTITY_ERROR) {
+      throw new EntityError(
+        data as {
+          status: 422;
+          payload: EntityErrorPayloar;
+        },
+      );
+    } else {
+      throw new HttpError(data);
+    }
   }
-  if (["/auth/login", "/auth/register"].includes(url)) {
-    clientSessionToken.value = (payload as LoginResType).data.token;
-  } else if ("/auth/logout".includes(url)) {
-    clientSessionToken.value = "";
+  if (typeof window !== undefined) {
+    if (
+      ["/auth/login", "/auth/register"].some(
+        (item) => item === normalizePath(url),
+      )
+    ) {
+      clientSessionToken.value = (payload as LoginResType).data.token;
+    } else if ("/auth/logout" === normalizePath(url)) {
+      clientSessionToken.value = "";
+    }
   }
+
   return data;
 };
 

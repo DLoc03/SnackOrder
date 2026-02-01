@@ -8,7 +8,6 @@ async function Profile() {
   const result = await accountApiRequest.me(sessionToken?.value ?? "");
   return (
     <div>
-      <h1>Hồ sơ</h1>
       <div>Xin chào {result.payload?.data?.name}</div>
     </div>
   );

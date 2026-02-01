@@ -27,6 +27,7 @@ import Link from "next/link";
 import authApiRequest from "@/apiRequest/auth";
 import { useRouter } from "next/navigation";
 import { PATHSNAME } from "@/constants/paths-name";
+import { handleErrorApi } from "@/lib/utils";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -34,6 +35,8 @@ const formSchema = z.object({
 });
 
 export function LoginForm() {
+  const [loading, setLoading] = React.useState(false);
+
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -44,6 +47,8 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
+    if (loading) return;
+    setLoading(true);
     try {
       const result = await authApiRequest.login(data);
       toast.success(result.payload.message, {
@@ -54,8 +59,9 @@ export function LoginForm() {
       });
       router.push(PATHSNAME.ME);
     } catch (err: any) {
-      console.error("Error: ", err);
-      toast.error(err.payload.errors[0].message, { position: "bottom-right" });
+      handleErrorApi({ error: err, setError: form.setError });
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -111,7 +117,7 @@ export function LoginForm() {
       </CardContent>
       <CardFooter>
         <Field orientation="vertical">
-          <Button type="submit" form="form-rhf-demo">
+          <Button type="submit" form="form-rhf-demo" disabled={loading}>
             Đăng nhập
           </Button>
           <FieldDescription>
